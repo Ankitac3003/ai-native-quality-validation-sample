@@ -51,6 +51,11 @@ const ListingCard = ({ listing }: ListingCardProps) => {
           }}
         />
 
+        {/* Dummy NEW Badge */}
+        <span className="absolute top-3 left-3 bg-black text-white text-xs px-2 py-1 rounded-md">
+          New
+        </span>
+
         {/* Favorite Button */}
         <button
           onClick={handleFavoriteClick}
@@ -72,6 +77,7 @@ const ListingCard = ({ listing }: ListingCardProps) => {
             >
               <span className="text-xs">←</span>
             </button>
+
             <button
               onClick={handleNextImage}
               className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -102,6 +108,7 @@ const ListingCard = ({ listing }: ListingCardProps) => {
           <h3 className="font-semibold text-gray-900 truncate">
             {listing.location.city}, {listing.location.state}
           </h3>
+
           {listing.rating && (
             <div className="flex items-center space-x-1">
               <FaStar className="text-xs text-black" />
