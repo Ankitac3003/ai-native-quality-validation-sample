@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaBars, FaUserCircle } from 'react-icons/fa';
 import { useAuthStore } from '../store/authStore';
@@ -7,6 +7,7 @@ const Header = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuthStore();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const menuRef = useRef(null);
 
   const handleLogout = () => {
     logout();
@@ -14,10 +15,34 @@ const Header = () => {
     navigate('/');
   };
 
+  // Close menu on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowUserMenu(false);
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setShowUserMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, []);
+
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
+          
           {/* Logo */}
           <Link to="/" className="flex items-center">
             <svg
@@ -27,7 +52,9 @@ const Header = () => {
             >
               <path d="M16 1c2 0 3.46 1.5 3.46 3.8 0 2.6-2.5 6-3.46 7.3-.96-1.3-3.46-4.7-3.46-7.3C12.54 2.5 14 1 16 1zm0 14.5c4.5 0 8.5 1.5 11.5 4C29 21 30 23 30 25.5c0 2.8-2.2 5-5 5H7c-2.8 0-5-2.2-5-5 0-2.5 1-4.5 2.5-6 3-2.5 7-4 11.5-4z" />
             </svg>
-            <span className="ml-2 text-xl font-bold text-airbnb-red">Demo Github App</span>
+            <span className="ml-2 text-xl font-bold text-airbnb-red">
+              Demo Github App
+            </span>
           </Link>
 
           {/* User Menu */}
@@ -39,10 +66,11 @@ const Header = () => {
               Become a Host
             </Link>
 
-
-            <div className="relative">
+            <div className="relative" ref={menuRef}>
               <button
-                onClick={() => setShowUserMenu(!showUserMenu)}
+                onClick={() => setShowUserMenu((prev) => !prev)}
+                aria-haspopup="true"
+                aria-expanded={showUserMenu}
                 className="flex items-center space-x-2 border border-gray-300 rounded-full py-2 px-4 hover:shadow-md transition"
               >
                 <FaBars className="text-gray-700" />
@@ -113,6 +141,7 @@ const Header = () => {
               )}
             </div>
           </div>
+
         </div>
       </div>
     </header>
