@@ -1,6 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaStar, FaHeart, FaRegHeart } from 'react-icons/fa';
+import {
+  FaStar,
+  FaHeart,
+  FaRegHeart,
+  FaChevronLeft,
+  FaChevronRight,
+} from 'react-icons/fa';
 import type { Listing } from '../types';
 
 interface ListingCardProps {
@@ -9,6 +15,7 @@ interface ListingCardProps {
 
 const ListingCard = ({ listing }: ListingCardProps) => {
   const navigate = useNavigate();
+
   const [isFavorite, setIsFavorite] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -37,57 +44,69 @@ const ListingCard = ({ listing }: ListingCardProps) => {
 
   return (
     <div
-      className="cursor-pointer group"
       onClick={handleCardClick}
+      className="group cursor-pointer transition-all duration-300 hover:-translate-y-1"
     >
-      {/* Image Container */}
-      <div className="relative aspect-square rounded-xl overflow-hidden mb-3">
+      {/* Image */}
+      <div className="relative aspect-square overflow-hidden rounded-2xl bg-gray-100">
         <img
-          src={listing.images[currentImageIndex]}
+          loading="lazy"
+          src={
+            listing.images?.[currentImageIndex] ||
+            'https://via.placeholder.com/500x500?text=No+Image'
+          }
           alt={listing.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           onError={(e) => {
-            e.currentTarget.src = 'https://via.placeholder.com/400x400?text=No+Image';
+            e.currentTarget.src =
+              'https://via.placeholder.com/500x500?text=No+Image';
           }}
         />
+
+        {/* Guest Favorite Badge */}
+        <div className="absolute left-3 top-3 rounded-full bg-white px-3 py-1 text-xs font-semibold shadow-md">
+          Guest favorite
+        </div>
 
         {/* Favorite Button */}
         <button
           onClick={handleFavoriteClick}
-          className="absolute top-3 right-3 p-2 hover:scale-110 transition"
+          className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-md transition hover:scale-110"
+          aria-label="Toggle Favorite"
         >
           {isFavorite ? (
-            <FaHeart className="text-airbnb-red text-xl" />
+            <FaHeart className="text-red-500 text-lg" />
           ) : (
-            <FaRegHeart className="text-white text-xl drop-shadow-lg" />
+            <FaRegHeart className="text-gray-700 text-lg" />
           )}
         </button>
 
-        {/* Image Navigation */}
+        {/* Navigation */}
         {listing.images.length > 1 && (
           <>
             <button
               onClick={handlePrevImage}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute left-3 top-1/2 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md transition hover:scale-105 group-hover:flex"
             >
-              <span className="text-xs">←</span>
-            </button>
-            <button
-              onClick={handleNextImage}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              <span className="text-xs">→</span>
+              <FaChevronLeft className="text-xs" />
             </button>
 
-            {/* Image Dots */}
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-1">
+            <button
+              onClick={handleNextImage}
+              className="absolute right-3 top-1/2 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white shadow-md transition hover:scale-105 group-hover:flex"
+            >
+              <FaChevronRight className="text-xs" />
+            </button>
+
+            {/* Dots */}
+            <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1">
               {listing.images.map((_, index) => (
-                <div
+                <span
                   key={index}
-                  className={`w-1.5 h-1.5 rounded-full ${
+                  className={`transition-all duration-300 ${
                     index === currentImageIndex
-                      ? 'bg-white'
-                      : 'bg-white/50'
+                      ? 'h-2 w-2 rounded-full bg-white'
+                      : 'h-1.5 w-1.5 rounded-full bg-white/60'
                   }`}
                 />
               ))}
@@ -96,35 +115,37 @@ const ListingCard = ({ listing }: ListingCardProps) => {
         )}
       </div>
 
-      {/* Listing Info */}
-      <div className="space-y-1">
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-gray-900 truncate">
+      {/* Listing Details */}
+      <div className="mt-3 space-y-1">
+        <div className="flex items-start justify-between">
+          <h3 className="truncate pr-2 text-[15px] font-semibold text-gray-900">
             {listing.location.city}, {listing.location.state}
           </h3>
+
           {listing.rating && (
-            <div className="flex items-center space-x-1">
-              <FaStar className="text-xs text-black" />
-              <span className="text-sm font-medium">
-                {listing.rating.toFixed(1)}
-              </span>
+            <div className="flex items-center gap-1 text-sm">
+              <FaStar className="text-[11px]" />
+              <span>{listing.rating.toFixed(2)}</span>
             </div>
           )}
         </div>
 
-        <p className="text-sm text-airbnb-gray truncate">
-          {listing.propertyType} · {listing.bedrooms} bedroom
-          {listing.bedrooms > 1 ? 's' : ''}
+        <p className="truncate text-sm text-gray-500">
+          {listing.propertyType} · {listing.bedrooms}{' '}
+          {listing.bedrooms === 1 ? 'bedroom' : 'bedrooms'}
         </p>
 
-        <p className="text-sm text-airbnb-gray">
-          {listing.maxGuests} guest{listing.maxGuests > 1 ? 's' : ''} · {listing.bathrooms}{' '}
-          bath{listing.bathrooms > 1 ? 's' : ''}
+        <p className="text-sm text-gray-500">
+          {listing.maxGuests} {listing.maxGuests === 1 ? 'guest' : 'guests'} ·{' '}
+          {listing.bathrooms}{' '}
+          {listing.bathrooms === 1 ? 'bath' : 'baths'}
         </p>
 
         <div className="pt-1">
-          <span className="font-semibold text-gray-900">${listing.price}</span>
-          <span className="text-sm text-airbnb-gray"> night</span>
+          <span className="text-[15px] font-semibold text-gray-900">
+            ${listing.price}
+          </span>
+          <span className="ml-1 text-[15px] text-gray-700">night</span>
         </div>
       </div>
     </div>
